@@ -74,3 +74,28 @@ Award 4 Nov) are in the "Left out as older news" box with dates.
 
 Ready for the parent to push to tulankganteng/news-image-20261124 and
 submit. NOT submitted, NOT pushed by this agent.
+
+
+## Round 1 rejection + Round 2 fix (24 Nov ~19:35 WIB)
+
+- Kit status for submission 01a20b8c: **rejected, round 1, `run_completes`
+  fail — "the program exited with code 1"** on the grader's dev run.
+- Cause: round-1 `main.py` generated the image at runtime with PIL
+  (`from PIL import Image...`) and loaded 12 JPEGs + 2 fonts from
+  `assets/`. The repo itself was complete (all 14 asset files present
+  at the submitted commit e310de8), so the failure is the runtime:
+  the grader's pinned python image has no Pillow (or otherwise cannot
+  run the PIL path). Yesterday's accepted entries (20261122, 20261123)
+  both used a stdlib-only copy script instead — that is the proven
+  pattern.
+- Fix: `main.py` rewritten (stdlib only, no PIL, no network, no clock)
+  to copy the pre-rendered `entry.png` to `$MAKEFUN_OUTPUT_DIR` and
+  validate it (1024x1024 PNG, < 1 MiB, SHA-256 round-trip check).
+  `entry.png` is the deterministic Test 2 output (344,003 bytes,
+  sha256 `1029322aa7912606...`, byte-identical).
+- Grader-style local test (`python3 -P -s main.py`, TZ=UTC,
+  PYTHONHASHSEED=0, LANG=C.UTF-8, clean env, fresh output dir):
+  exit 0, output sha256 matches `1029322a...`.
+- Resubmit round 2 before the deadline Thu 2026-11-26 00:00 UTC /
+  07:00 WIB. `entry.png` (binary) goes to the repo via browser upload;
+  `main.py` + this log via `github push-files`.
